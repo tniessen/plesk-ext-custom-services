@@ -44,11 +44,13 @@ class IndexController extends pm_Controller_Action
             [
                 'title' => 'Add service (simple)',
                 'description' => 'Add a new service that wraps a process',
+                'class' => 'sb-add-new',
                 'link' => pm_Context::getActionUrl('index', 'add') . '/type/process'
             ],
             [
                 'title' => 'Add service (manual)',
                 'description' => 'Add a new manually controlled service',
+                'class' => 'sb-add-new',
                 'link' => pm_Context::getActionUrl('index', 'add') . '/type/manual'
             ]
         ]);
@@ -161,7 +163,7 @@ class IndexController extends pm_Controller_Action
             [
                 'title' => 'Edit',
                 'description' => 'Edit this service',
-                'class' => 'sb-button1',
+                'class' => 'sb-change-subscription',
                 'controller' => 'index',
                 'link' => pm_Context::getActionUrl('index', 'edit') . '/id/' . urlencode($config->unique_id)
             ],
