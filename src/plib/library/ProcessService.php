@@ -31,8 +31,8 @@ class Modules_CustomServices_ProcessService extends Modules_CustomServices_Abstr
 
     public function onRestart()
     {
-        $this->onStart();
         $this->onStop();
+        $this->onStart();
     }
 
     public function isRunning()
