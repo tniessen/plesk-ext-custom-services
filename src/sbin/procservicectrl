@@ -1,0 +1,88 @@
+#!/bin/bash
+set -em
+
+if [ -z "$PLESK_CUSTOM_SERVICE_ID" ]; then
+  echo "PLESK_CUSTOM_SERVICE_ID is not set." >&2
+  exit 2
+fi
+
+if [ -z "$PLESK_CUSTOM_SERVICE_VAR_RUN_DIR" ]; then
+  echo "PLESK_CUSTOM_SERVICE_VAR_RUN_DIR is not set." >&2
+  exit 2
+fi
+
+if [ -z "$PLESK_CUSTOM_SERVICE_COMMAND" ]; then
+  echo "PLESK_CUSTOM_SERVICE_COMMAND is not set." >&2
+  exit 2
+fi
+
+pid_file="$PLESK_CUSTOM_SERVICE_VAR_RUN_DIR/plesk-custom-service-$PLESK_CUSTOM_SERVICE_ID.pid"
+
+pid_lock () {
+  lockfile -1 -r2 -l60 -s10 "$pid_file.lock"
+}
+
+pid_unlock () {
+  rm -f "$pid_file.lock"
+}
+
+unique_environ="PLESK_CUSTOM_SERVICE_ID=$PLESK_CUSTOM_SERVICE_ID"
+
+case "$1" in
+start)
+  # Make sure the service is not running already.
+  pid_lock
+  if [ -f "$pid_file" ]; then
+    current_pid=$(cat "$pid_file")
+    if grep -qF "$unique_environ" /proc/$current_pid/environ 2>/dev/null; then
+      pid_unlock
+      echo "Service is already running (process $current_pid)" >&2
+      exit 1
+    fi
+  fi
+
+  # Some shells provide their own nohup implementations that are not fully
+  # compatible with using $! to get the pid of the process. To avoid this,
+  # explicitly use the binary provided by the OS.
+  $(which nohup) $PLESK_CUSTOM_SERVICE_COMMAND >/dev/null 2>&1 &
+  # Store the PID of the new process.
+  echo $! > "$pid_file"
+  pid_unlock
+  exit 0
+  ;;
+stop)
+  # If the process is indeed still running, kill it.
+  pid_lock
+  if [ -f "$pid_file" ]; then
+    current_pid=$(cat "$pid_file")
+    if grep -qF "$unique_environ" /proc/$current_pid/environ 2>/dev/null; then
+      pid_unlock
+      # Terminate all processes belonging to the group.
+      proc_group_id=$(ps -o pgid= "$current_pid" | xargs)
+      kill -SIGTERM $current_pid -$proc_group_id
+      exit 0
+    fi
+  fi
+  pid_lock
+  echo "Service is not running" >&2
+  exit 1
+  ;;
+status)
+  # Check if the PID file exists and whether it points to a valid process.
+  pid_lock
+  if [ -f "$pid_file" ]; then
+    current_pid=$(cat "$pid_file")
+    if grep -qF "$unique_environ" /proc/$current_pid/environ 2>/dev/null; then
+      pid_unlock
+      echo "Status: active (running) as process $current_pid"
+      exit 0
+    fi
+  fi
+  pid_unlock
+  echo "Status: inactive (not running)"
+  exit 0
+  ;;
+*)
+  echo "Incorrect usage: Unknown command '$1'" >&2
+  exit 2
+esac

@@ -1,0 +1,35 @@
+#!/bin/bash
+set -e
+
+if [ $# != 2 ]; then
+  echo "Usage: $0 <directory> <user>" >&2
+  exit 2
+fi
+
+if [ -d "$1" ]; then
+  # The directory exists, make sure it has the correct owner and permissions.
+  # Checking the group is not necessary because no permissions are granted to
+  # the group.
+  if ! owner="$(stat -c '%U' "$1")"; then
+    exit 1
+  fi
+  if [ "$owner" != "$2" ]; then
+    echo "Error: Existing directory has invalid owner." 2>&1
+    exit 1
+  fi
+  if ! perms=$(stat -c '%a' "$1"); then
+    exit 1
+  fi
+  if [ "$perms" != "700" ]; then
+    echo "Error: Existing directory has invalid permissions." 2>&1
+    exit 1
+  fi
+else
+  # The directory does not exist, create it with the correct owner and
+  # permissions.
+  mkdir --mode=700 "$1"
+  if ! chown "$2" "$1"; then
+    rmdir "$1"
+    exit 1
+  fi
+fi

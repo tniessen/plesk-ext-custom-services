@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<module>
+  <id>custom-services</id>
+  <name>Custom Services</name>
+  <description>Add custom system/application services to the Plesk interface.</description>
+  <category>server_tool</category>
+  <version>1.0</version>
+  <release>1</release>
+  <vendor>Tobias Nießen</vendor>
+  <url>https://tniessen.me</url>
+  <plesk_min_version>18.0.0</plesk_min_version>
+  <os>unix</os>
+</module>
