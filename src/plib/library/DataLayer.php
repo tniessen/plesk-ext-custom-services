@@ -8,18 +8,18 @@ class Modules_CustomServices_DataLayer
         pm_Context::init('custom-services');
         self::$var_dir = pm_Context::getVarDir();
 
-        $services_path = self::servicesFilePath();
+        $services_path = self::_servicesFilePath();
         if (!file_exists($services_path)) {
             file_put_contents($services_path, '[]');
         }
     }
 
-    private static function servicesFilePath() {
+    private static function _servicesFilePath() {
         return self::$var_dir . '/services.json';
     }
 
     public static function loadServiceConfigurations() {
-        $json = json_decode(file_get_contents(self::servicesFilePath()));
+        $json = json_decode(file_get_contents(self::_servicesFilePath()));
         $parse_config = function($entry) {
             $config = new Modules_CustomServices_ServiceConfig();
             foreach (array_keys(get_object_vars($config)) as $name) {
@@ -31,8 +31,8 @@ class Modules_CustomServices_DataLayer
         return array_map($parse_config, $json);
     }
 
-    private static function writeServiceConfigurations($all) {
-        file_put_contents(self::servicesFilePath(), json_encode($all));
+    private static function _writeServiceConfigurations($all) {
+        file_put_contents(self::_servicesFilePath(), json_encode($all));
     }
 
     public static function addServiceConfiguration($config) {
@@ -44,7 +44,7 @@ class Modules_CustomServices_DataLayer
             }
         }
         array_push($all, $config);
-        self::writeServiceConfigurations($all);
+        self::_writeServiceConfigurations($all);
     }
 
     public static function updateServiceConfiguration($config) {
@@ -53,7 +53,7 @@ class Modules_CustomServices_DataLayer
         foreach ($all as $index => $existing_config) {
             if ($existing_config->unique_id === $config->unique_id) {
                 $all[$index] = $config;
-                self::writeServiceConfigurations($all);
+                self::_writeServiceConfigurations($all);
                 return;
             }
         }
@@ -65,7 +65,7 @@ class Modules_CustomServices_DataLayer
         foreach ($all as $index => $config) {
             if ($config->unique_id === $id) {
                 array_splice($all, $index, 1);
-                self::writeServiceConfigurations($all);
+                self::_writeServiceConfigurations($all);
                 return;
             }
         }

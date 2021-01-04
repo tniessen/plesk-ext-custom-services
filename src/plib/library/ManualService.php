@@ -2,7 +2,7 @@
 
 class Modules_CustomServices_ManualService extends Modules_CustomServices_AbstractService
 {
-    private function interact($command)
+    private function _interact($command)
     {
         $args = [
             $this->config->run_as_user,
@@ -14,7 +14,7 @@ class Modules_CustomServices_ManualService extends Modules_CustomServices_Abstra
 
     public function onStart()
     {
-        $result = $this->interact($this->config->manual_start_command);
+        $result = $this->_interact($this->config->manual_start_command);
         if ($result['code'] !== 0) {
             throw new pm_Exception("Failed to start '{$this->getName()}': {$result['stderr']}");
         }
@@ -22,7 +22,7 @@ class Modules_CustomServices_ManualService extends Modules_CustomServices_Abstra
 
     public function onStop()
     {
-        $result = $this->interact($this->config->manual_stop_command);
+        $result = $this->_interact($this->config->manual_stop_command);
         if ($result['code'] !== 0) {
             throw new pm_Exception("Failed to stop '{$this->getName()}': {$result['stderr']}");
         }
@@ -34,7 +34,7 @@ class Modules_CustomServices_ManualService extends Modules_CustomServices_Abstra
             $this->onStop();
             $this->onStart();
         } else {
-            $result = $this->interact($this->config->manual_restart_command);
+            $result = $this->_interact($this->config->manual_restart_command);
             if ($result['code'] !== 0) {
                 throw new pm_Exception("Failed to restart '{$this->getName()}': {$result['stderr']}");
             }
@@ -43,7 +43,7 @@ class Modules_CustomServices_ManualService extends Modules_CustomServices_Abstra
 
     public function isRunning()
     {
-        $result = $this->interact($this->config->manual_status_command);
+        $result = $this->_interact($this->config->manual_status_command);
         return $result['code'] === 0;
     }
 }

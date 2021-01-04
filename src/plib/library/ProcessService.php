@@ -2,7 +2,7 @@
 
 class Modules_CustomServices_ProcessService extends Modules_CustomServices_AbstractService
 {
-    private function procservicectrl($action)
+    private function _procservicectrl($action)
     {
         $rootdir = pm_ProductInfo::getProductRootDir();
         $cmd = "$rootdir/admin/sbin/modules/custom-services/procservicectrl $action";
@@ -21,12 +21,12 @@ class Modules_CustomServices_ProcessService extends Modules_CustomServices_Abstr
 
     public function onStart()
     {
-        $this->procservicectrl('start');
+        $this->_procservicectrl('start');
     }
 
     public function onStop()
     {
-        $this->procservicectrl('stop');
+        $this->_procservicectrl('stop');
     }
 
     public function onRestart()
@@ -37,7 +37,7 @@ class Modules_CustomServices_ProcessService extends Modules_CustomServices_Abstr
 
     public function isRunning()
     {
-        $result = $this->procservicectrl('status');
+        $result = $this->_procservicectrl('status');
         return strpos($result['stdout'], 'Status: active') === 0;
     }
 }

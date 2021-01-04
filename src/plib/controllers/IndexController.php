@@ -68,7 +68,7 @@ class IndexController extends pm_Controller_Action
         $this->_helper->json($list->fetchData());
     }
 
-    private function loadSingleConfiguration($id)
+    private function _loadSingleConfiguration($id)
     {
         Modules_CustomServices_DataLayer::init();
         $configs = Modules_CustomServices_DataLayer::loadServiceConfigurations();
@@ -82,7 +82,7 @@ class IndexController extends pm_Controller_Action
 
     public function viewAction()
     {
-        $config = $this->loadSingleConfiguration($this->getRequest()->getParam('id'));
+        $config = $this->_loadSingleConfiguration($this->getRequest()->getParam('id'));
         if ($config === FALSE) {
             $this->_forward('list');
             return;
@@ -183,7 +183,7 @@ class IndexController extends pm_Controller_Action
 
     public function deleteAction()
     {
-        $config = $this->loadSingleConfiguration($this->getRequest()->getParam('id'));
+        $config = $this->_loadSingleConfiguration($this->getRequest()->getParam('id'));
         if ($config === FALSE) {
             $this->_forward('list');
             return;
@@ -342,7 +342,7 @@ class IndexController extends pm_Controller_Action
 
     public function editAction()
     {
-        $config = $this->loadSingleConfiguration($this->getRequest()->getParam('id'));
+        $config = $this->_loadSingleConfiguration($this->getRequest()->getParam('id'));
         if ($config === FALSE) {
             $this->_forward('list');
             return;
