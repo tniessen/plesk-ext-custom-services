@@ -2,6 +2,20 @@
 
 class IndexController extends pm_Controller_Action
 {
+    private static function _configTypeName($type) {
+        return [
+            Modules_CustomServices_ServiceConfig::TYPE_PROCESS => 'Process',
+            Modules_CustomServices_ServiceConfig::TYPE_MANUAL => 'Manual'
+        ][$type];
+    }
+
+    private static function _configTypeDescription($type) {
+        return [
+            Modules_CustomServices_ServiceConfig::TYPE_PROCESS => 'This service is managed by this extension. When the service is started, a new process group is spawned by executing the given command. The process group leader must remain active until stopped.',
+            Modules_CustomServices_ServiceConfig::TYPE_MANUAL => 'This service can run independently of this extension. Plesk uses the below commands to interact with the service.'
+        ][$type];
+    }
+
     public function init()
     {
         parent::init();
@@ -33,7 +47,7 @@ class IndexController extends pm_Controller_Action
         $config_to_array = function($config) {
             return [
                 'name' => '<a href="' . htmlspecialchars(pm_Context::getActionUrl('index', 'view') . '/id/' . urlencode($config->unique_id)) . '">' . htmlspecialchars($config->display_name) . '</a>',
-                'type' => $config->config_type,
+                'type' => self::_configTypeName($config->config_type),
                 'plesk_service_id' => '<code>' . htmlspecialchars('ext-' . pm_Context::getModuleId() . '-' . $config->unique_id) . '</code>',
                 'run_as_user' => $config->run_as_user
             ];
@@ -142,7 +156,8 @@ class IndexController extends pm_Controller_Action
         ]);
         $form->addElement('text', 'config_type', [
             'label' => 'Type',
-            'value' => $config->config_type,
+            'value' => self::_configTypeName($config->config_type),
+            'description' => self::_configTypeDescription($config->config_type),
             'readonly' => TRUE
         ]);
         $form->addElement('text', 'run_as_user', [
@@ -266,23 +281,12 @@ class IndexController extends pm_Controller_Action
             return;
         }
 
-        if ($t_process) {
-            $this->view->pageTitle = 'Add simple custom service';
-        } else {
-            $this->view->pageTitle = 'Add manual custom service';
-        }
+        $this->view->pageTitle = 'Add custom service: ' . self::_configTypeName($config_type);
 
         $form = new pm_Form_Simple();
-
-        if ($t_process) {
-            $form->addElement('description', 'description', [
-                'description' => 'Add a custom service to Plesk that wraps a process.'
-            ]);
-        } else {
-            $form->addElement('description', 'description', [
-                'description' => 'Add a custom service to Plesk that is controlled by custom commands.'
-            ]);
-        }
+        $form->addElement('description', 'description', [
+            'description' => self::_configTypeDescription($config_type)
+        ]);
 
         $form->addElement('text', 'unique_id', [
             'label' => 'Unique identifier',
@@ -380,6 +384,9 @@ class IndexController extends pm_Controller_Action
         $this->view->pageTitle = 'Edit custom service';
 
         $form = new pm_Form_Simple();
+        $form->addElement('description', 'description', [
+            'description' => self::_configTypeDescription($config->config_type)
+        ]);
         $form->addElement('text', 'unique_id', [
             'label' => 'Unique identifier',
             'value' => $config->unique_id,
