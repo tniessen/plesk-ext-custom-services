@@ -10,7 +10,8 @@ class Modules_CustomServices_ProcessService extends Modules_CustomServices_Abstr
         $env = [
             'PLESK_CUSTOM_SERVICE_ID' => $this->getId(),
             'PLESK_CUSTOM_SERVICE_VAR_RUN_DIR' => "/var/run/plesk-custom-service-{$this->getId()}",
-            'PLESK_CUSTOM_SERVICE_COMMAND' => $this->config->process_command
+            'PLESK_CUSTOM_SERVICE_COMMAND' => $this->config->process_command,
+            'PLESK_CUSTOM_SERVICE_STOP_SIGNAL' => $this->config->process_stop_signal
         ];
         $result = pm_ApiCli::callSbin('service-interact', $args, pm_ApiCli::RESULT_FULL, $env);
         if ($result['code'] !== 0) {

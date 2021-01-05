@@ -16,6 +16,11 @@ if [ -z "$PLESK_CUSTOM_SERVICE_COMMAND" ]; then
   exit 2
 fi
 
+if [ -z "$PLESK_CUSTOM_SERVICE_STOP_SIGNAL" ]; then
+  echo "PLESK_CUSTOM_SERVICE_STOP_SIGNAL is not set." >&2
+  exit 2
+fi
+
 pid_file="$PLESK_CUSTOM_SERVICE_VAR_RUN_DIR/plesk-custom-service-$PLESK_CUSTOM_SERVICE_ID.pid"
 
 pid_lock () {
@@ -59,7 +64,7 @@ stop)
       pid_unlock
       # Terminate all processes belonging to the group.
       proc_group_id=$(ps -o pgid= "$current_pid" | xargs)
-      kill -SIGTERM $current_pid -$proc_group_id
+      kill -$PLESK_CUSTOM_SERVICE_STOP_SIGNAL $current_pid -$proc_group_id
       exit 0
     fi
   fi

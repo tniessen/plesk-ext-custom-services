@@ -20,6 +20,8 @@ class Modules_CustomServices_ServiceConfig
 
     // Which command to execute to act as the service process.
     public $process_command;
+    // What signal to use to stop the process.
+    public $process_stop_signal;
 
     // The command that is used to start the service.
     public $manual_start_command;
@@ -51,6 +53,10 @@ class Modules_CustomServices_ServiceConfig
         if ($this->config_type === self::TYPE_PROCESS) {
             if (empty($this->process_command) || !is_string($this->process_command)) {
                 throw new pm_Exception("{$this->unique_id}: Invalid command");
+            }
+
+            if ($this->process_stop_signal !== 'SIGTERM' && $this->process_stop_signal !== 'SIGINT' && $this->process_stop_signal !== 'SIGKILL') {
+                throw new pm_Exception("{$this->unique_id}: Invalid stop signal");
             }
         } else if ($this->config_type === self::TYPE_MANUAL) {
             if (empty($this->manual_start_command) || !is_string($this->manual_start_command)) {

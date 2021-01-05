@@ -180,6 +180,13 @@ class IndexController extends pm_Controller_Action
                 'readonly' => TRUE,
                 'description' => 'This command will be used to start the service, and the process must remain active while the service is running.'
             ]);
+
+            $form->addElement('text', 'process_stop_signal', [
+                'label' => 'Stop signal',
+                'value' => $config->process_stop_signal,
+                'readonly' => TRUE,
+                'description' => 'This signal will be used to stop the service process.'
+            ]);
         } else {
             $form->addElement('text', 'manual_start_command', [
                 'label' => 'Start command',
@@ -338,6 +345,18 @@ class IndexController extends pm_Controller_Action
                 'required' => TRUE,
                 'description' => 'This command will be used to start the service, and the process must remain active while the service is running.'
             ]);
+
+            $form->addElement('radio', 'process_stop_signal', [
+                'label' => 'Stop signal',
+                'value' => 'SIGTERM',
+                'multiOptions' => [
+                        'SIGTERM' => 'SIGTERM',
+                        'SIGINT'  => 'SIGINT',
+                        'SIGKILL' => 'SIGKILL'
+                ],
+                'required' => TRUE,
+                'description' => 'This signal will be used to stop the service process.'
+            ]);
         } else {
             $form->addElement('text', 'manual_start_command', [
                 'label' => 'Start command',
@@ -376,7 +395,9 @@ class IndexController extends pm_Controller_Action
                 $config->{$prop} = $form->getValue($prop);
             }
             if ($t_process) {
-                $config->process_command = $form->getValue('process_command');
+                foreach(['process_command', 'process_stop_signal'] as $prop) {
+                    $config->{$prop} = $form->getValue($prop);
+                }
             } else {
                 foreach(['manual_start_command', 'manual_stop_command', 'manual_restart_command', 'manual_status_command'] as $prop) {
                     $config->{$prop} = $form->getValue($prop);
@@ -443,6 +464,18 @@ class IndexController extends pm_Controller_Action
                 'required' => TRUE,
                 'description' => 'This command will be used to start the service, and the process must remain active while the service is running.'
             ]);
+
+            $form->addElement('radio', 'process_stop_signal', [
+                'label' => 'Stop signal',
+                'value' => $config->process_stop_signal,
+                'multiOptions' => [
+                        'SIGTERM' => 'SIGTERM',
+                        'SIGINT'  => 'SIGINT',
+                        'SIGKILL' => 'SIGKILL'
+                ],
+                'required' => TRUE,
+                'description' => 'This signal will be used to stop the service process.'
+            ]);
         } else {
             $form->addElement('text', 'manual_start_command', [
                 'label' => 'Start command',
@@ -480,7 +513,9 @@ class IndexController extends pm_Controller_Action
             }
 
             if ($config->config_type === Modules_CustomServices_ServiceConfig::TYPE_PROCESS) {
-                $config->process_command = $form->getValue('process_command');
+                foreach(['process_command', 'process_stop_signal'] as $prop) {
+                    $config->{$prop} = $form->getValue($prop);
+                }
             } else {
                 foreach(['manual_start_command', 'manual_stop_command', 'manual_restart_command', 'manual_status_command'] as $prop) {
                     $config->{$prop} = $form->getValue($prop);
