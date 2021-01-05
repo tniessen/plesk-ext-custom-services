@@ -68,7 +68,7 @@ stop)
       exit 0
     fi
   fi
-  pid_lock
+  pid_unlock
   echo "Service is not running" >&2
   exit 1
   ;;
