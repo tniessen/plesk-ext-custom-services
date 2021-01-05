@@ -17,7 +17,8 @@ class IndexController extends pm_Controller_Action
         $config_to_array = function($config) {
             return [
                 'name' => '<a href="' . htmlspecialchars(pm_Context::getActionUrl('index', 'view') . '/id/' . urlencode($config->unique_id)) . '">' . htmlspecialchars($config->display_name) . '</a>',
-                'type' => $config->config_type
+                'type' => $config->config_type,
+                'plesk_service_id' => 'ext-' . pm_Context::getModuleId() . '-' . $config->unique_id
             ];
         };
         $data = array_map($config_to_array, $configs);
@@ -36,6 +37,12 @@ class IndexController extends pm_Controller_Action
                 'title' => 'Type',
                 'noEscape' => FALSE,
                 'searchable' => FALSE,
+                'sortable' => FALSE
+            ],
+            'plesk_service_id' => [
+                'title' => 'Service ID',
+                'noEscape' => FALSE,
+                'searchable' => TRUE,
                 'sortable' => FALSE
             ]
         ]);
@@ -98,6 +105,12 @@ class IndexController extends pm_Controller_Action
             'value' => $config->unique_id,
             'readonly' => TRUE,
             'description' => 'This string uniquely identifies the service.'
+        ]);
+        $form->addElement('text', 'plesk_service_id', [
+            'label' => 'Service ID',
+            'value' => 'ext-' . pm_Context::getModuleId() . '-' . $config->unique_id,
+            'readonly' => TRUE,
+            'description' => 'Use this identifier to interact with the service through Plesk.'
         ]);
         $form->addElement('text', 'display_name', [
             'label' => 'Name',
@@ -334,14 +347,6 @@ class IndexController extends pm_Controller_Action
         $this->view->form = $form;
     }
 
-    public function addManualServiceAction()
-    {
-        $this->view->pageTitle = 'Add manual custom service';
-        $form = new pm_Form_Simple();
-        $form->addControlButtons();
-        $this->view->form = $form;
-    }
-
     public function editAction()
     {
         $config = $this->_loadSingleConfiguration($this->getRequest()->getParam('id'));
@@ -358,6 +363,12 @@ class IndexController extends pm_Controller_Action
             'value' => $config->unique_id,
             'readonly' => TRUE,
             'description' => 'This string uniquely identifies the service.'
+        ]);
+        $form->addElement('text', 'plesk_service_id', [
+            'label' => 'Service ID',
+            'value' => 'ext-' . pm_Context::getModuleId() . '-' . $config->unique_id,
+            'readonly' => TRUE,
+            'description' => 'Use this identifier to interact with the service through Plesk.'
         ]);
         $form->addElement('text', 'display_name', [
             'label' => 'Name',
@@ -413,7 +424,7 @@ class IndexController extends pm_Controller_Action
         }
 
         $form->addControlButtons([
-            'cancelLink' => pm_Context::getBaseUrl()
+            'cancelLink' => pm_Context::getActionUrl('index', 'view') . '/id/' . urlencode($config->unique_id)
         ]);
 
         if ($this->getRequest()->isPost() && $form->isValid($this->getRequest()->getPost())) {
