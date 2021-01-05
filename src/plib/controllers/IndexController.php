@@ -34,7 +34,8 @@ class IndexController extends pm_Controller_Action
             return [
                 'name' => '<a href="' . htmlspecialchars(pm_Context::getActionUrl('index', 'view') . '/id/' . urlencode($config->unique_id)) . '">' . htmlspecialchars($config->display_name) . '</a>',
                 'type' => $config->config_type,
-                'plesk_service_id' => '<code>' . htmlspecialchars('ext-' . pm_Context::getModuleId() . '-' . $config->unique_id) . '</code>'
+                'plesk_service_id' => '<code>' . htmlspecialchars('ext-' . pm_Context::getModuleId() . '-' . $config->unique_id) . '</code>',
+                'run_as_user' => $config->run_as_user
             ];
         };
         $data = array_map($config_to_array, $configs);
@@ -60,6 +61,12 @@ class IndexController extends pm_Controller_Action
                 'noEscape' => TRUE,
                 'searchable' => TRUE,
                 'sortable' => FALSE
+            ],
+            'run_as_user' => [
+                'title' => 'System user',
+                'noEscape' => FALSE,
+                'searchable' => TRUE,
+                'sortable' => TRUE
             ]
         ]);
         $list->setDataUrl(['action' => 'list-data']);
