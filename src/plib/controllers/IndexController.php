@@ -34,7 +34,7 @@ class IndexController extends pm_Controller_Action
             return [
                 'name' => '<a href="' . htmlspecialchars(pm_Context::getActionUrl('index', 'view') . '/id/' . urlencode($config->unique_id)) . '">' . htmlspecialchars($config->display_name) . '</a>',
                 'type' => $config->config_type,
-                'plesk_service_id' => 'ext-' . pm_Context::getModuleId() . '-' . $config->unique_id
+                'plesk_service_id' => '<code>' . htmlspecialchars('ext-' . pm_Context::getModuleId() . '-' . $config->unique_id) . '</code>'
             ];
         };
         $data = array_map($config_to_array, $configs);
@@ -57,7 +57,7 @@ class IndexController extends pm_Controller_Action
             ],
             'plesk_service_id' => [
                 'title' => 'Service ID',
-                'noEscape' => FALSE,
+                'noEscape' => TRUE,
                 'searchable' => TRUE,
                 'sortable' => FALSE
             ]
