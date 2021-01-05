@@ -245,10 +245,28 @@ class IndexController extends pm_Controller_Action
 
         $form = new pm_Form_Simple();
         $form->addElement('description', 'description', [
-            'description' => "Do you want to delete the service \"{$config->display_name}\" ({$config->unique_id})? This action cannot be undone."
+            'description' => 'Do you want to delete this service? This action cannot be undone.'
+        ]);
+        $form->addElement('text', 'unique_id', [
+            'label' => 'Unique identifier',
+            'value' => $config->unique_id,
+            'readonly' => TRUE,
+            'description' => 'This string uniquely identifies the service.'
+        ]);
+        $form->addElement('text', 'plesk_service_id', [
+            'label' => 'Service ID',
+            'value' => 'ext-' . pm_Context::getModuleId() . '-' . $config->unique_id,
+            'readonly' => TRUE,
+            'description' => 'Use this identifier to interact with the service through Plesk.'
+        ]);
+        $form->addElement('text', 'display_name', [
+            'label' => 'Name',
+            'value' => $config->display_name,
+            'readonly' => TRUE,
+            'description' => 'Display name of this service.'
         ]);
         $form->addElement('checkbox', 'confirm_delete', [
-            'label' => "Yes",
+            'label' => 'Yes, delete this service.',
             'required' => TRUE
         ]);
         $form->addControlButtons([
