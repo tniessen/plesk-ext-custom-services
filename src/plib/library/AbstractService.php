@@ -16,6 +16,10 @@ abstract class Modules_CustomServices_AbstractService extends pm_SystemService_S
 
     public function getName()
     {
-        return "Custom service: {$this->config->display_name}";
+        if (pm_Settings::get('service_name_add_prefix', '1') !== '0') {
+            return "Custom service: {$this->config->display_name}";
+        } else {
+            return $this->config->display_name;
+        }
     }
 }

@@ -2,6 +2,22 @@
 
 class IndexController extends pm_Controller_Action
 {
+    public function init()
+    {
+        parent::init();
+        $this->view->pageTitle = 'Custom Services';
+        $this->view->tabs = [
+            [
+                'title' => 'Services',
+                'action' => 'list'
+            ],
+            [
+                'title' => 'Settings',
+                'action' => 'settings'
+            ]
+        ];
+    }
+
     public function indexAction()
     {
         $this->_forward('list');
@@ -66,7 +82,6 @@ class IndexController extends pm_Controller_Action
 
     public function listAction()
     {
-        $this->view->pageTitle = 'Custom Services';
         $list = $this->_getServiceList();
         $this->view->list = $list;
     }
@@ -442,6 +457,28 @@ class IndexController extends pm_Controller_Action
 
             Modules_CustomServices_DataLayer::updateServiceConfiguration($config);
             $this->_status->addInfo("The changes to the service '{$config->display_name}' were saved.");
+            $this->_helper->json(['redirect' => pm_Context::getBaseUrl()]);
+        }
+
+        $this->view->form = $form;
+    }
+
+    public function settingsAction()
+    {
+        $form = new pm_Form_Simple();
+        $form->addElement('checkbox', 'service_name_add_prefix', [
+            'label' => 'Add a prefix to custom service names',
+            'value' => pm_Settings::get('service_name_add_prefix', '1'),
+            'required' => TRUE
+        ]);
+
+        $form->addControlButtons([
+            'cancelHidden' => TRUE
+        ]);
+
+        if ($this->getRequest()->isPost() && $form->isValid($this->getRequest()->getPost())) {
+            pm_Settings::set('service_name_add_prefix', $form->getValue('service_name_add_prefix'));
+            $this->_status->addInfo('Settings saved.');
             $this->_helper->json(['redirect' => pm_Context::getBaseUrl()]);
         }
 
