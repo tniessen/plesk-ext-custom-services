@@ -20,6 +20,10 @@ class Modules_CustomServices_ServiceConfig
 
     // Which command to execute to act as the service process.
     public $process_command;
+    // What file to append stdout to.
+    public $process_stdout_redirect_path;
+    // What file to append stderr to.
+    public $process_stderr_redirect_path;
     // What signal to use to stop the process.
     public $process_stop_signal;
 
@@ -38,41 +42,52 @@ class Modules_CustomServices_ServiceConfig
             throw new pm_Exception("Invalid unique identifier '{$this->unique_id}'");
         }
 
-        if (empty($this->display_name) || !is_string($this->display_name)) {
-            throw new pm_Exception("{$this->unique_id}: Invalid display name");
-        }
-
-        if (empty($this->run_as_user) || !is_string($this->run_as_user)) {
-            throw new pm_Exception("{$this->unique_id}: Invalid user");
-        }
-
-        if (empty($this->working_directory) || !is_string($this->working_directory)) {
-            throw new pm_Exception("{$this->unique_id}: Invalid working directory");
-        }
+        self::_requireNonEmptyString($this->display_name, 'Invalid display name');
+        self::_requireNonEmptyString($this->run_as_user, 'Invalid user');
+        self::_requireNonEmptyString($this->working_directory, 'Invalid working directory');
 
         if ($this->config_type === self::TYPE_PROCESS) {
-            if (empty($this->process_command) || !is_string($this->process_command)) {
-                throw new pm_Exception("{$this->unique_id}: Invalid command");
-            }
-
-            if ($this->process_stop_signal !== 'SIGTERM' && $this->process_stop_signal !== 'SIGINT' && $this->process_stop_signal !== 'SIGKILL') {
-                throw new pm_Exception("{$this->unique_id}: Invalid stop signal");
-            }
+            self::_requireNonEmptyString($this->process_command, 'Invalid command');
+            self::_requireEmptyOrString($this->process_stdout_redirect_path, 'Invalid stdout redirect path');
+            self::_requireEmptyOrString($this->process_stderr_redirect_path, 'Invalid stderr redirect path');
+            self::_requireOption($this->process_stop_signal, ['SIGTERM', 'SIGINT', 'SIGKILL'], 'Invalid stop signal');
         } else if ($this->config_type === self::TYPE_MANUAL) {
-            if (empty($this->manual_start_command) || !is_string($this->manual_start_command)) {
-                throw new pm_Exception("{$this->unique_id}: Invalid start command");
-            }
-            if (empty($this->manual_stop_command) || !is_string($this->manual_stop_command)) {
-                throw new pm_Exception("{$this->unique_id}: Invalid stop command");
-            }
-            if (!empty($this->manual_restart_command) && !is_string($this->manual_restart_command)) {
-                throw new pm_Exception("{$this->unique_id}: Invalid restart command");
-            }
-            if (empty($this->manual_status_command) || !is_string($this->manual_status_command)) {
-                throw new pm_Exception("{$this->unique_id}: Invalid status command");
-            }
+            self::_requireNonEmptyString($this->manual_start_command, 'Invalid start command');
+            self::_requireNonEmptyString($this->manual_stop_command, 'Invalid stop command');
+            self::_requireEmptyOrString($this->manual_restart_command, 'Invalid restart command');
+            self::_requireNonEmptyString($this->manual_status_command, 'Invalid status command');
         } else {
             throw new pm_Exception("{$this->unique_id}: Invalid configuration type");
+        }
+    }
+
+    private function _requireNonEmpty($value, $desc) {
+        if (empty($value)) {
+            throw new pm_Exception("$desc: empty.");
+        }
+    }
+
+    private function _requireString($value, $desc) {
+        if (!is_string($value)) {
+            throw new pm_Exception("$desc: not a string");
+        }
+    }
+
+    private function _requireNonEmptyString($value, $desc) {
+        self::_requireString($value, $desc);
+        self::_requireNonEmpty($value, $desc);
+    }
+
+    private function _requireEmptyOrString($value, $desc) {
+        if (!empty($value)) {
+            self::_requireString($value, $desc);
+        }
+    }
+
+    private function _requireOption($value, $options, $desc) {
+        if (!in_array($value, $options, TRUE)) {
+            $str = implode(', ', $options);
+            throw new pm_Exception("$desc: must be one of $str");
         }
     }
 }

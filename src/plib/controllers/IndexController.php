@@ -181,6 +181,19 @@ class IndexController extends pm_Controller_Action
                 'description' => 'This command will be used to start the service, and the process must remain active while the service is running.'
             ]);
 
+            $form->addElement('text', 'process_stdout_redirect_path', [
+                'label' => 'Redirect output',
+                'value' => $config->process_stdout_redirect_path,
+                'readonly' => TRUE,
+                'description' => empty($config->process_stdout_redirect_path) ? 'The standard output stream of the process will be discarded.' : 'The standard output stream of the process will be appended to this file.'
+            ]);
+            $form->addElement('text', 'process_stderr_redirect_path', [
+                'label' => 'Redirect errors',
+                'value' => $config->process_stderr_redirect_path,
+                'readonly' => TRUE,
+                'description' => empty($config->process_stderr_redirect_path) ? 'The standard error stream of the process will be merged with the standard output stream.' : 'The standard error stream of the process will be appended to this file.'
+            ]);
+
             $form->addElement('text', 'process_stop_signal', [
                 'label' => 'Stop signal',
                 'value' => $config->process_stop_signal,
@@ -346,6 +359,19 @@ class IndexController extends pm_Controller_Action
                 'description' => 'This command will be used to start the service, and the process must remain active while the service is running.'
             ]);
 
+            $form->addElement('text', 'process_stdout_redirect_path', [
+                'label' => 'Redirect output',
+                'value' => '',
+                'required' => FALSE,
+                'description' => 'If this field is empty, the standard output stream of the process will be discarded. Otherwise, data written to the standard output stream will be appended to this file.'
+            ]);
+            $form->addElement('text', 'process_stderr_redirect_path', [
+                'label' => 'Redirect errors',
+                'value' => '',
+                'required' => FALSE,
+                'description' => 'If this field is empty, the standard error stream of the process will be merged with the standard output stream. Otherwise, data written to the standard error stream will be appended to this file.'
+            ]);
+
             $form->addElement('radio', 'process_stop_signal', [
                 'label' => 'Stop signal',
                 'value' => 'SIGTERM',
@@ -395,7 +421,7 @@ class IndexController extends pm_Controller_Action
                 $config->{$prop} = $form->getValue($prop);
             }
             if ($t_process) {
-                foreach(['process_command', 'process_stop_signal'] as $prop) {
+                foreach(['process_command', 'process_stdout_redirect_path', 'process_stderr_redirect_path', 'process_stop_signal'] as $prop) {
                     $config->{$prop} = $form->getValue($prop);
                 }
             } else {
@@ -465,6 +491,19 @@ class IndexController extends pm_Controller_Action
                 'description' => 'This command will be used to start the service, and the process must remain active while the service is running.'
             ]);
 
+            $form->addElement('text', 'process_stdout_redirect_path', [
+                'label' => 'Redirect output',
+                'value' => $config->process_stdout_redirect_path,
+                'required' => FALSE,
+                'description' => 'If this field is empty, the standard output stream of the process will be discarded. Otherwise, data written to the standard output stream will be appended to this file.'
+            ]);
+            $form->addElement('text', 'process_stderr_redirect_path', [
+                'label' => 'Redirect errors',
+                'value' => $config->process_stderr_redirect_path,
+                'required' => FALSE,
+                'description' => 'If this field is empty, the standard error stream of the process will be merged with the standard output stream. Otherwise, data written to the standard error stream will be appended to this file.'
+            ]);
+
             $form->addElement('radio', 'process_stop_signal', [
                 'label' => 'Stop signal',
                 'value' => $config->process_stop_signal,
@@ -513,7 +552,7 @@ class IndexController extends pm_Controller_Action
             }
 
             if ($config->config_type === Modules_CustomServices_ServiceConfig::TYPE_PROCESS) {
-                foreach(['process_command', 'process_stop_signal'] as $prop) {
+                foreach(['process_command', 'process_stdout_redirect_path', 'process_stderr_redirect_path', 'process_stop_signal'] as $prop) {
                     $config->{$prop} = $form->getValue($prop);
                 }
             } else {

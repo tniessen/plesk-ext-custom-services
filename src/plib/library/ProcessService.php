@@ -7,10 +7,25 @@ class Modules_CustomServices_ProcessService extends Modules_CustomServices_Abstr
         $rootdir = pm_ProductInfo::getProductRootDir();
         $cmd = "$rootdir/admin/sbin/modules/custom-services/procservicectrl $action";
         $args = [$this->config->run_as_user, $this->config->working_directory, $cmd];
+
+        if (empty($this->config->process_stdout_redirect_path)) {
+          $redirect_stdout = '/dev/null';
+        } else {
+          $redirect_stdout = $this->config->process_stdout_redirect_path;
+        }
+
+        if (empty($this->config->process_stderr_redirect_path)) {
+          $redirect_stderr = '';
+        } else {
+          $redirect_stderr = $this->config->process_stderr_redirect_path;
+        }
+
         $env = [
             'PLESK_CUSTOM_SERVICE_ID' => $this->getId(),
             'PLESK_CUSTOM_SERVICE_VAR_RUN_DIR' => "/var/run/plesk-custom-service-{$this->getId()}",
             'PLESK_CUSTOM_SERVICE_COMMAND' => $this->config->process_command,
+            'PLESK_CUSTOM_SERVICE_REDIRECT_STDOUT' => $redirect_stdout,
+            'PLESK_CUSTOM_SERVICE_REDIRECT_STDERR' => $redirect_stderr,
             'PLESK_CUSTOM_SERVICE_STOP_SIGNAL' => $this->config->process_stop_signal
         ];
         $result = pm_ApiCli::callSbin('service-interact', $args, pm_ApiCli::RESULT_FULL, $env);

@@ -16,6 +16,11 @@ if [ -z "$PLESK_CUSTOM_SERVICE_COMMAND" ]; then
   exit 2
 fi
 
+if [ -z "$PLESK_CUSTOM_SERVICE_REDIRECT_STDOUT" ]; then
+  echo "PLESK_CUSTOM_SERVICE_REDIRECT_STDOUT is not set." >&2
+  exit 2
+fi
+
 if [ -z "$PLESK_CUSTOM_SERVICE_STOP_SIGNAL" ]; then
   echo "PLESK_CUSTOM_SERVICE_STOP_SIGNAL is not set." >&2
   exit 2
@@ -49,7 +54,11 @@ start)
   # Some shells provide their own nohup implementations that are not fully
   # compatible with using $! to get the pid of the process. To avoid this,
   # explicitly use the binary provided by the OS.
-  $(which nohup) $PLESK_CUSTOM_SERVICE_COMMAND >/dev/null 2>&1 &
+  if [ -z "$PLESK_CUSTOM_SERVICE_REDIRECT_STDERR" ]; then
+    $(which nohup) $PLESK_CUSTOM_SERVICE_COMMAND >>"$PLESK_CUSTOM_SERVICE_REDIRECT_STDOUT" 2>&1 &
+  else
+    $(which nohup) $PLESK_CUSTOM_SERVICE_COMMAND >>"$PLESK_CUSTOM_SERVICE_REDIRECT_STDOUT" 2>>"$PLESK_CUSTOM_SERVICE_REDIRECT_STDERR" &
+  fi
   # Store the PID of the new process.
   echo $! > "$pid_file"
   pid_unlock
